@@ -127,7 +127,7 @@ void processor_t::parse_isa_string(const char* str)
     lowercase += std::tolower(*r);
 
   const char* p = lowercase.c_str();
-  const char* all_subsets = "imafdqc"
+  const char* all_subsets = "imafdqcb"
 #ifdef __SIZEOF_INT128__
     "v"
 #endif
@@ -604,13 +604,14 @@ void processor_t::set_csr(int which, reg_t val)
       if (!(val & (1L << ('F' - 'A'))))
         val &= ~(1L << ('D' - 'A'));
 
-      // allow MAFDC bits in MISA to be modified
+      // allow MAFDCB bits in MISA to be modified
       reg_t mask = 0;
       mask |= 1L << ('M' - 'A');
       mask |= 1L << ('A' - 'A');
       mask |= 1L << ('F' - 'A');
       mask |= 1L << ('D' - 'A');
       mask |= 1L << ('C' - 'A');
+      mask |= 1L << ('B' - 'A');
       mask &= max_isa;
 
       state.misa = (val & mask) | (state.misa & ~mask);
