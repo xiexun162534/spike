@@ -21,8 +21,8 @@
 #include "mmu.h"
 #include "gdbstub.h"
 
-#if 1
-#define D(x) (x)
+#if 0
+#define D(x) x
 #else
 #define D(x)
 #endif
@@ -145,7 +145,8 @@ static char *split(char *str, char by, int num, char **where)
   }
   if (where[count] != NULL && count < num) {
     count += 1;
-    where[count] = NULL;
+    if (count < num)
+      where[count] = NULL;
   }
   return str;
 }
@@ -834,7 +835,6 @@ void gdbstub_t::handle_detach(char *packet)
 
 void gdbstub_t::handle_kill(char *packet)
 {
-  put_packet("OK");
   exit(0);
 }
 
