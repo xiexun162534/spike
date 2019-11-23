@@ -16,6 +16,7 @@
 
 class mmu_t;
 class remote_bitbang_t;
+class gdbstub_t;
 
 // this class encapsulates the processors and memory in a RISC-V machine.
 class sim_t : public htif_t, public simif_t
@@ -38,6 +39,9 @@ public:
   void set_procs_debug(bool value);
   void set_dtb_enabled(bool value) {
     this->dtb_enabled = value;
+  }
+  void set_gdbstub(gdbstub_t* gdbstub) {
+    this->gdbstub = gdbstub;
   }
   void set_remote_bitbang(remote_bitbang_t* remote_bitbang) {
     this->remote_bitbang = remote_bitbang;
@@ -73,6 +77,7 @@ private:
   bool log_commits_enabled;
   bool dtb_enabled;
   remote_bitbang_t* remote_bitbang;
+  gdbstub_t* gdbstub;
 
   // memory-mapped I/O routines
   char* addr_to_mem(reg_t addr);
@@ -108,6 +113,7 @@ private:
   friend class processor_t;
   friend class mmu_t;
   friend class debug_module_t;
+  friend class gdbstub_t;
 
   // htif
   friend void sim_thread_main(void*);

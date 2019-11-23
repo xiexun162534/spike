@@ -381,6 +381,7 @@ private:
   trigger_matched_t *matched_trigger;
 
   friend class processor_t;
+  friend class gdbstub_t;
 };
 
 struct vm_info {

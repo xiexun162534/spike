@@ -3,6 +3,7 @@
 #include "sim.h"
 #include "mmu.h"
 #include "remote_bitbang.h"
+#include "gdbstub.h"
 #include "cachesim.h"
 #include "extension.h"
 #include <dlfcn.h>
@@ -124,6 +125,8 @@ int main(int argc, char** argv)
   const char* varch = DEFAULT_VARCH;
   uint16_t rbb_port = 0;
   bool use_rbb = false;
+  uint16_t gdb_port = 0;
+  bool use_gdb = false;
   unsigned dmi_rti = 0;
   debug_module_config_t dm_config = {
     .progbufsize = 2,
@@ -202,6 +205,7 @@ int main(int argc, char** argv)
   // I wanted to use --halted, but for some reason that doesn't work.
   parser.option('H', 0, 0, [&](const char* s){halted = true;});
   parser.option(0, "rbb-port", 1, [&](const char* s){use_rbb = true; rbb_port = atoi(s);});
+  parser.option(0, "gdb-port", 1, [&](const char* s){use_gdb = true; gdb_port = atoi(s);});
   parser.option(0, "pc", 1, [&](const char* s){start_pc = strtoull(s, 0, 0);});
   parser.option(0, "hartids", 1, hartids_parser);
   parser.option(0, "ic", 1, [&](const char* s){ic.reset(new icache_sim_t(s));});
@@ -258,6 +262,13 @@ int main(int argc, char** argv)
     s.set_remote_bitbang(&(*remote_bitbang));
   }
   s.set_dtb_enabled(dtb_enabled);
+
+  
+  std::unique_ptr<gdbstub_t> gdbstub((gdbstub_t *) NULL);
+  if (use_gdb) {
+    gdbstub.reset(new gdbstub_t(&s, gdb_port));
+    s.set_gdbstub(&(*gdbstub));
+  }
 
   if (dump_dts) {
     printf("%s", s.get_dts());

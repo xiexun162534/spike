@@ -4,6 +4,7 @@
 #include "mmu.h"
 #include "dts.h"
 #include "remote_bitbang.h"
+#include "gdbstub.h"
 #include "byteorder.h"
 #include <map>
 #include <iostream>
@@ -36,7 +37,8 @@ sim_t::sim_t(const char* isa, const char* priv, const char* varch,
     procs(std::max(nprocs, size_t(1))), start_pc(start_pc), current_step(0),
     current_proc(0), debug(false), histogram_enabled(false),
     log_commits_enabled(false), dtb_enabled(true),
-    remote_bitbang(NULL), debug_module(this, dm_config)
+    remote_bitbang(NULL), 
+    gdbstub(NULL), debug_module(this, dm_config)
 {
   signal(SIGINT, &handle_signal);
 
@@ -88,7 +90,9 @@ void sim_t::main()
 
   while (!done())
   {
-    if (debug || ctrlc_pressed)
+    if (gdbstub)
+      gdbstub->run();
+    else if (debug || ctrlc_pressed)
       interactive();
     else
       step(INTERLEAVE);
